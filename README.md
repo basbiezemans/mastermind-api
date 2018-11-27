@@ -13,7 +13,7 @@ $ curl http://127.0.0.1:5000/create/
 ## Guess a pattern
 
 ```bash
-$ curl -X PUT -d pattern=ECHO http://127.0.0.1:5000/guess/
+$ curl -X PUT -d code=1234 http://127.0.0.1:5000/guess/
 ```
 
 ## Unit tests
