@@ -16,11 +16,11 @@ class Guess(Resource):
     def put(self):
         """ Returns feedback given a code pattern guess
         """
-        pattern = request.form.get('pattern')
-        if pattern is None:
+        code = request.form.get('code')
+        if code is None:
             return abort(400)
         return {
-            'message': f'You guessed: {pattern}',
+            'message': f'You guessed: {code}',
             'feedback': []
         }
 
