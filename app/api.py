@@ -1,8 +1,12 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, abort
+from mastermind import CodeMaker, CodeBreaker
 
 app = Flask(__name__)
 api = Api(app)
+
+codemaker = CodeMaker()
+codebreaker = CodeBreaker()
 
 class Game(Resource):
     def get(self):
@@ -16,13 +20,14 @@ class Guess(Resource):
     def put(self):
         """ Returns feedback given a code pattern guess
         """
-        code = request.form.get('code')
-        if code is None:
-            return abort(400)
-        return {
-            'message': f'You guessed: {code}',
-            'feedback': []
-        }
+        guess = codebreaker.guess(request.form.get('code'))
+        if guess.is_valid():
+            feedback = codemaker.feedback(guess)
+            return {
+                'message': f'You guessed: {guess.code}',
+                'feedback': feedback.response
+            }
+        return abort(400)
 
 # Endpoints
 api.add_resource(Game, '/create/')
