@@ -21,13 +21,14 @@ class Guess(Resource):
         """ Returns feedback given a code pattern guess
         """
         guess = codebreaker.guess(request.form.get('code'))
-        if guess.is_valid():
+        try:
             feedback = codemaker.feedback(guess)
             return {
                 'message': f'You guessed: {guess.code}',
                 'feedback': feedback.response
             }
-        return abort(400)
+        except ValueError:
+            return abort(400)
 
 # Endpoints
 api.add_resource(Game, '/create/')
