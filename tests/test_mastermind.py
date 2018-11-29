@@ -53,3 +53,40 @@ class TestMastermind(TestCase):
         feedback = codemaker.feedback(Guess('4124'))
         expected = [0,0]
         self.assertEqual(feedback.response, expected)
+
+    def test_player_points(self):
+        # The codemaker will earn a point if the codebreaker doesn't guess the pattern within one
+        # round of the game. The winner is the one who has the most points after the agreed-upon 
+        # number of games are played.
+        codemaker = CodeMaker(code='1212')
+        codebreaker = CodeBreaker()
+        codemaker_points_before = codemaker.points
+        codebreaker_points_before = codebreaker.points
+        game = Game(codemaker, codebreaker, turns=1)
+        game.process(codemaker.feedback(Guess('5656'))) # wrong guess
+        codemaker_points_after = codemaker.points
+        codebreaker_points_after = codebreaker.points
+        self.assertEqual(codemaker_points_before, 0)
+        self.assertEqual(codemaker_points_after, 1)
+        self.assertEqual(codebreaker_points_before, 0)
+        self.assertEqual(codebreaker_points_after, 0)
+        # New game
+        codemaker = CodeMaker(code='1212')
+        codebreaker = CodeBreaker()
+        codemaker_points_before = codemaker.points
+        codebreaker_points_before = codebreaker.points
+        game = Game(codemaker, codebreaker, turns=1)
+        game.process(codemaker.feedback(Guess('1212'))) # correct guess
+        codemaker_points_after = codemaker.points
+        codebreaker_points_after = codebreaker.points
+        self.assertEqual(codemaker_points_before, 0)
+        self.assertEqual(codemaker_points_after, 0)
+        self.assertEqual(codebreaker_points_before, 0)
+        self.assertEqual(codebreaker_points_after, 1)
+
+    def test_correct_number_of_games(self):
+        # Must be an even number greater than 0 and less than a certain maximum.
+        pass
+
+    def test_game_terminates_correctly(self):
+        pass

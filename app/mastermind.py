@@ -1,7 +1,44 @@
 from random import randint
 
-class CodeMaker:
+class Game:
+    def __init__(self, codemaker, codebreaker, turns=10):
+        self.codemaker = codemaker
+        self.codebreaker = codebreaker
+        self.turns = turns
+        self.turn_counter = 0
+
+    def reset(self):
+        self.turn_counter = 0
+
+    def process(self, feedback):
+        """ Determines the result of a game turn
+        """
+        self.turn_counter += 1
+        if feedback.result.is_correct():
+            self.codebreaker.add_point()
+            self.reset()
+        if self.turn_counter == self.turns:
+            self.codemaker.add_point()
+
+    def __repr__(self):
+        return (
+            f'Game(codemaker={self.codemaker}'
+            f', codebreaker={self.codebreaker}, turns={self.turns})'
+        )
+
+class Player:
+    def __init__(self):
+        self.points = 0
+
+    def add_point(self):
+        self.points += 1
+
+    def __repr__(self):
+        return 'Player()'
+
+class CodeMaker(Player):
     def __init__(self, code=None):
+        super().__init__()
         if code is None:
             self.initialize()
         else:
@@ -26,23 +63,29 @@ class CodeMaker:
             elif digit in pattern:
                 result.append(0)
                 pattern.remove(digit)
-        return result
+        return self.EvaluationResult(result)
+
+    class EvaluationResult:
+        def __init__(self, value):
+            self.value = value
+        def is_correct(self):
+            return sum(self.value) == 4
 
     def feedback(self, guess):
         """ Returns a Feedback object or raises a ValueError
         """
         if guess.is_valid():
             result = self.evaluate(guess)
-            return Feedback(guess.code, result)
+            return Feedback(guess, result)
         else:
             raise ValueError('Invalid Guess')
 
     def __repr__(self):
         return 'CodeMaker()'
 
-class CodeBreaker:
+class CodeBreaker(Player):
     def __init__(self):
-        pass
+        super().__init__()
 
     def guess(self, code):
         """ Returns a Guess object
@@ -74,12 +117,13 @@ class Guess:
         return True
 
     def __repr__(self):
-        return 'Guess(code={self.code})'
+        return f'Guess(code={self.code})'
 
 class Feedback:
-    def __init__(self, code, response):
-        self.code = code
-        self.response = response
+    def __init__(self, guess, result):
+        self.code = guess.code
+        self.result = result
+        self.response = result.value
 
     def __repr__(self):
         return f'Feedback(code={self.code}, response={self.response})'
