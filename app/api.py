@@ -24,16 +24,33 @@ class Guess(Resource):
     def put(self):
         """ Returns feedback given a code pattern guess
         """
+        if not game.ready:
+            return {
+                'message': 'You first have to create a game.',
+                'feedback': []
+            }, 403
         guess = codebreaker.guess(request.form.get('code'))
         try:
             feedback = codemaker.feedback(guess)
-            game.process(feedback)
-            return {
-                'message': f'You guessed: {guess.code}',
-                'feedback': feedback.response
-            }
         except ValueError:
             return abort(400)
+        else:
+            game.process(feedback)
+            if feedback.result.is_correct() or game.has_no_turns_left():
+                result = 'CORRECT!' if feedback.result.is_correct() else 'Game Over!'
+                message = (
+                    f'{result} The current score is '
+                    f'{codebreaker.points} (You) vs {codemaker.points} (CodeMaker).'
+                )
+            else:
+                message = (
+                    f'Guess {game.turn_counter} of {game.turns}. '
+                    f'You guessed: {guess.code}'
+                )
+            return {
+                'message': message,
+                'feedback': feedback.response
+            }
 
 # Endpoints
 api.add_resource(Create, '/create/')

@@ -23,12 +23,12 @@ class Game:
         if feedback.result.is_correct():
             self.codebreaker.add_point()
             self.terminate()
-        if self.has_no_turns_left():
+        if self.ready and self.has_no_turns_left():
             self.codemaker.add_point()
             self.terminate()
 
     def has_no_turns_left(self):
-        return self.ready and self.turn_counter == self.turns
+        return self.turn_counter == self.turns
 
     def __repr__(self):
         return (
