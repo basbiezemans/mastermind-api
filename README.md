@@ -10,10 +10,38 @@ REST API that simulates the role of Mastermind's codemaker.
 $ curl http://127.0.0.1:5000/create/
 ```
 
-## Guess a pattern
+Example response
+
+```json
+{
+    "message": "A new game has been created. Good luck!",
+    "token": "d9a831082a121dee...",
+     ...
+}
+```
+
+## Guess the code
+
+PUT request. Use the token from the response to communicate with the server.
+
+* code : four digit number
+* token : hexadecimal string
 
 ```bash
-$ curl -X PUT -d code=1234 http://127.0.0.1:5000/guess/
+$ curl -X PUT -d code=1234 -d token=d9a83... http://127.0.0.1:5000/guess/
+```
+
+Example response
+
+```json
+{
+    "message": "Guess 1 of 10. You guessed: 1234",
+    "token": "d9a831082a121dee...",
+    "feedback": [
+        1,
+        0
+    ]
+}
 ```
 
 ## Unit tests
