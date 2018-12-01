@@ -54,16 +54,14 @@ class TestMastermind(TestCase):
         expected = [0,0]
         self.assertEqual(feedback.response, expected)
 
-    def test_player_points(self):
+    def test_codemaker_points(self):
         # The codemaker will earn a point if the codebreaker doesn't guess the pattern within one
-        # round of the game. The winner is the one who has the most points after the agreed-upon 
-        # number of games are played.
+        # round of the game.
         codemaker = CodeMaker(code='1212')
         codebreaker = CodeBreaker()
         codemaker_points_before = codemaker.points
         codebreaker_points_before = codebreaker.points
         game = Game(codemaker, codebreaker, turns=1)
-        game.create()
         game.process(codemaker.feedback(Guess('5656'))) # wrong guess
         codemaker_points_after = codemaker.points
         codebreaker_points_after = codebreaker.points
@@ -71,13 +69,14 @@ class TestMastermind(TestCase):
         self.assertEqual(codemaker_points_after, 1)
         self.assertEqual(codebreaker_points_before, 0)
         self.assertEqual(codebreaker_points_after, 0)
-        # New game
+        
+    def test_codebreaker_points(self):
+        # The code breaker will earn a point if the pattern is guessed before the round is over.
         codemaker = CodeMaker(code='1212')
         codebreaker = CodeBreaker()
         codemaker_points_before = codemaker.points
         codebreaker_points_before = codebreaker.points
         game = Game(codemaker, codebreaker, turns=1)
-        game.create()
         game.process(codemaker.feedback(Guess('1212'))) # correct guess
         codemaker_points_after = codemaker.points
         codebreaker_points_after = codebreaker.points
@@ -86,17 +85,15 @@ class TestMastermind(TestCase):
         self.assertEqual(codebreaker_points_before, 0)
         self.assertEqual(codebreaker_points_after, 1)
 
-    def test_game_starts_correctly(self):
-        # Game has to be created before one starts guessing codes
-        game = Game(CodeMaker(), None)
-        self.assertFalse(game.ready)
-        game.create()
-        self.assertTrue(game.ready)
-
-    def test_game_terminates_correctly(self):
-        codemaker = CodeMaker(code='1234')
-        game = Game(codemaker, None, turns=1) # only one guess
-        game.create()
-        self.assertTrue(game.ready)
-        game.process(codemaker.feedback(Guess('5555')))
-        self.assertFalse(game.ready)
+    def test_game_reset(self):
+        code = '1234'
+        codemaker = CodeMaker(code=code)
+        game = Game(codemaker, CodeBreaker(), turns=1)
+        feedback = codemaker.feedback(Guess(code))
+        self.assertTrue(feedback.result.is_correct())
+        game.process(feedback)
+        self.assertEqual(game.turn_counter, 1)
+        game.reset()
+        self.assertEqual(game.turn_counter, 0)
+        feedback = codemaker.feedback(Guess(code))
+        self.assertFalse(feedback.result.is_correct())

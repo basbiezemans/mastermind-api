@@ -1,22 +1,23 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, abort
+from secrets import token_hex
 from mastermind import Game, CodeMaker, CodeBreaker
 
 app = Flask(__name__)
 api = Api(app)
 
-codemaker = CodeMaker()
-codebreaker = CodeBreaker()
-
-game = Game(codemaker, codebreaker)
+games = {}
 
 class Create(Resource):
     def get(self):
         """ Creates a new game
         """
-        game.create()
+        token = token_hex(20)
+        game = Game(CodeMaker(), CodeBreaker())
+        games[token] = game
         return {
             'message': 'A new game has been created. Good luck!',
+            'token': token,
             'guesses': game.turns
         }, 201
 
@@ -24,24 +25,28 @@ class Guess(Resource):
     def put(self):
         """ Returns feedback given a code pattern guess
         """
-        if not game.ready:
+        token = request.form.get('token')
+        if token not in games:
             return {
                 'message': 'You first have to create a game.',
+                'token': None,
                 'feedback': []
             }, 403
-        guess = codebreaker.guess(request.form.get('code'))
+        game = games.get(token)
+        guess = game.codebreaker.guess(request.form.get('code'))
         try:
-            feedback = codemaker.feedback(guess)
+            feedback = game.codemaker.feedback(guess)
         except ValueError:
             return abort(400)
         else:
             game.process(feedback)
             if feedback.result.is_correct() or game.has_no_turns_left():
-                result = 'CORRECT!' if feedback.result.is_correct() else 'Game Over!'
+                result = 'You won!' if feedback.result.is_correct() else 'You lost.'
                 message = (
-                    f'{result} The current score is '
-                    f'{codebreaker.points} (You) vs {codemaker.points} (CodeMaker).'
+                    f'{result} The current score is {game.codebreaker.points} '
+                    f'(You) vs {game.codemaker.points} (CodeMaker). Try again.'
                 )
+                game.reset()
             else:
                 message = (
                     f'Guess {game.turn_counter} of {game.turns}. '
@@ -49,6 +54,7 @@ class Guess(Resource):
                 )
             return {
                 'message': message,
+                'token': token,
                 'feedback': feedback.response
             }
 
