@@ -5,7 +5,7 @@ class TestAPI(TestCase):
     
     def test_create_game(self):
         test = get('http://localhost:5000/create/')
-        self.assertEqual(test.status_code, 200)
+        self.assertEqual(test.status_code, 201)
 
     def test_guess_without_code(self):
         test = put('http://localhost:5000/guess/', data={})

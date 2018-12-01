@@ -17,23 +17,23 @@ class TestMastermind(TestCase):
 
     def test_guess_is_valid(self):
         guess = Guess('1234')
-        self.assertEqual(guess.is_valid(), True)
+        self.assertTrue(guess.is_valid())
 
     def test_guess_is_empty(self):
         guess = Guess('')
-        self.assertEqual(guess.is_valid(), False)
+        self.assertFalse(guess.is_valid())
 
     def test_guess_has_incorrect_length(self):
         guess = Guess('123456')
-        self.assertEqual(guess.is_valid(), False)
+        self.assertFalse(guess.is_valid())
 
     def test_guess_has_incorrect_value(self):
         guess = Guess('test')
-        self.assertEqual(guess.is_valid(), False)
+        self.assertFalse(guess.is_valid())
 
     def test_guess_has_incorrect_pattern(self):
         guess = Guess('1238')
-        self.assertEqual(guess.is_valid(), False)
+        self.assertFalse(guess.is_valid())
 
     def test_codemaker_provides_correct_feedback(self):
         codemaker = CodeMaker(code='6243')
@@ -43,8 +43,8 @@ class TestMastermind(TestCase):
         self.assertEqual(feedback.response, expected)
 
     def test_codemaker_provides_correct_feedback_if_there_are_duplicates(self):
-        # If there are duplicate colours in the guess, they cannot all be awarded a key peg unless 
-        # they correspond to the same number of duplicate colours in the hidden code.
+        # If there are duplicate digits in the guess, they cannot all be awarded a key bit unless 
+        # they correspond to the same number of duplicate digits in the hidden code.
         codemaker = CodeMaker(code='6243')
         feedback = codemaker.feedback(Guess('6225'))
         expected = [1,1]
@@ -63,6 +63,7 @@ class TestMastermind(TestCase):
         codemaker_points_before = codemaker.points
         codebreaker_points_before = codebreaker.points
         game = Game(codemaker, codebreaker, turns=1)
+        game.create()
         game.process(codemaker.feedback(Guess('5656'))) # wrong guess
         codemaker_points_after = codemaker.points
         codebreaker_points_after = codebreaker.points
@@ -76,6 +77,7 @@ class TestMastermind(TestCase):
         codemaker_points_before = codemaker.points
         codebreaker_points_before = codebreaker.points
         game = Game(codemaker, codebreaker, turns=1)
+        game.create()
         game.process(codemaker.feedback(Guess('1212'))) # correct guess
         codemaker_points_after = codemaker.points
         codebreaker_points_after = codebreaker.points
@@ -84,9 +86,17 @@ class TestMastermind(TestCase):
         self.assertEqual(codebreaker_points_before, 0)
         self.assertEqual(codebreaker_points_after, 1)
 
-    def test_correct_number_of_games(self):
-        # Must be an even number greater than 0 and less than a certain maximum.
-        pass
+    def test_game_starts_correctly(self):
+        # Game has to be created before one starts guessing codes
+        game = Game(CodeMaker(), None)
+        self.assertFalse(game.ready)
+        game.create()
+        self.assertTrue(game.ready)
 
     def test_game_terminates_correctly(self):
-        pass
+        codemaker = CodeMaker(code='1234')
+        game = Game(codemaker, None, turns=1) # only one guess
+        game.create()
+        self.assertTrue(game.ready)
+        game.process(codemaker.feedback(Guess('5555')))
+        self.assertFalse(game.ready)

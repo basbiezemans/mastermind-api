@@ -4,11 +4,17 @@ class Game:
     def __init__(self, codemaker, codebreaker, turns=10):
         self.codemaker = codemaker
         self.codebreaker = codebreaker
+        self.ready = False
         self.turns = turns
         self.turn_counter = 0
 
-    def reset(self):
+    def create(self):
         self.turn_counter = 0
+        self.ready = True
+
+    def terminate(self):
+        self.ready = False
+        self.codemaker.initialize()
 
     def process(self, feedback):
         """ Determines the result of a game turn
@@ -16,9 +22,13 @@ class Game:
         self.turn_counter += 1
         if feedback.result.is_correct():
             self.codebreaker.add_point()
-            self.reset()
-        if self.turn_counter == self.turns:
+            self.terminate()
+        if self.has_no_turns_left():
             self.codemaker.add_point()
+            self.terminate()
+
+    def has_no_turns_left(self):
+        return self.ready and self.turn_counter == self.turns
 
     def __repr__(self):
         return (

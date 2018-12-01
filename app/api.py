@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, abort
-from mastermind import CodeMaker, CodeBreaker
+from mastermind import Game, CodeMaker, CodeBreaker
 
 app = Flask(__name__)
 api = Api(app)
@@ -8,13 +8,17 @@ api = Api(app)
 codemaker = CodeMaker()
 codebreaker = CodeBreaker()
 
-class Game(Resource):
+game = Game(codemaker, codebreaker)
+
+class Create(Resource):
     def get(self):
         """ Creates a new game
         """
+        game.create()
         return {
-            'message': 'A new game has been created. Good luck!'
-        }
+            'message': 'A new game has been created. Good luck!',
+            'guesses': game.turns
+        }, 201
 
 class Guess(Resource):
     def put(self):
@@ -23,6 +27,7 @@ class Guess(Resource):
         guess = codebreaker.guess(request.form.get('code'))
         try:
             feedback = codemaker.feedback(guess)
+            game.process(feedback)
             return {
                 'message': f'You guessed: {guess.code}',
                 'feedback': feedback.response
@@ -31,7 +36,7 @@ class Guess(Resource):
             return abort(400)
 
 # Endpoints
-api.add_resource(Game, '/create/')
+api.add_resource(Create, '/create/')
 api.add_resource(Guess, '/guess/')
 
 if __name__ == '__main__':
