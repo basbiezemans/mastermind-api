@@ -6,32 +6,33 @@ REST API that simulates the role of Mastermind's codemaker.
 
 ## Create a new game
 
+POST request. Creates a new game and returns a token as identifier.
+
 ```bash
-$ curl http://127.0.0.1:5000/create/
+$ curl -X POST http://127.0.0.1:5000/game/
 ```
 
-Example response
+Example JSON response
 
 ```json
 {
     "message": "A new game has been created. Good luck!",
-    "token": "d9a831082a121dee...",
-     ...
+    "token": "d9a831082a121dee..."
 }
 ```
 
 ## Guess the code
 
-PUT request. Use the token from the response to communicate with the server.
+PATCH request. Use the token from the response to communicate with the server.
 
 * code : four digit number
 * token : hexadecimal string
 
 ```bash
-$ curl -X PUT -d code=1234 -d token=d9a83... http://127.0.0.1:5000/guess/
+$ curl -X PATCH -d code=1234 -d token=d9a83... http://127.0.0.1:5000/game/
 ```
 
-Example response
+Example JSON response
 
 ```json
 {
@@ -41,6 +42,27 @@ Example response
         1,
         0
     ]
+}
+```
+
+## Game information
+
+GET request. Retrieve game information with a token.
+
+```bash
+$ curl http://127.0.0.1:5000/game/d9a831082a121dee...
+```
+
+Example JSON response
+
+```json
+{
+    "message": "This game was created on 2018-12-02 12:04:44.596132",
+    "token": "d9a831082a121dee...",
+    "score": {
+        "codemaker": 1,
+        "codebreaker": 0
+    }
 }
 ```
 

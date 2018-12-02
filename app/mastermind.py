@@ -1,9 +1,11 @@
 from random import randint
+from datetime import datetime
 
 class Game:
     def __init__(self, codemaker, codebreaker, turns=10):
         self.codemaker = codemaker
         self.codebreaker = codebreaker
+        self.created = datetime.utcnow()
         self.turns = turns
         self.turn_counter = 0
 

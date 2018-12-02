@@ -8,29 +8,27 @@ api = Api(app)
 
 games = {}
 
-class Create(Resource):
-    def get(self):
-        """ Creates a new game
+class Mastermind(Resource):
+    def post(self):
+        """ Creates a new game and returns a token
         """
         token = token_hex(20)
         game = Game(CodeMaker(), CodeBreaker())
         games[token] = game
         return {
             'message': 'A new game has been created. Good luck!',
-            'token': token,
-            'guesses': game.turns
+            'token': token
         }, 201
 
-class Guess(Resource):
-    def put(self):
-        """ Returns feedback given a code pattern guess
+    def patch(self):
+        """ Updates a game and returns feedback
         """
         token = request.form.get('token')
         if token not in games:
             return {
                 'message': 'You first have to create a game.',
                 'token': None,
-                'feedback': []
+                'feedback': None
             }, 403
         game = games.get(token)
         guess = game.codebreaker.guess(request.form.get('code'))
@@ -58,9 +56,29 @@ class Guess(Resource):
                 'feedback': feedback.response
             }
 
-# Endpoints
-api.add_resource(Create, '/create/')
-api.add_resource(Guess, '/guess/')
+    def get(self, token=None):
+        """ Returns information about a game
+        """
+        if token is None:
+            return abort(400)
+        if token not in games:
+            return {
+                'message': 'You first have to create a game.',
+                'token': None,
+                'score': None
+            }, 403
+        game = games.get(token)
+        return {
+            'message': f'This game was created on {game.created}',
+            'token': token,
+            'score': {
+                'codemaker': game.codemaker.points,
+                'codebreaker': game.codebreaker.points
+            }
+        }
+
+# Endpoint
+api.add_resource(Mastermind, '/game/', '/game/<token>')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
