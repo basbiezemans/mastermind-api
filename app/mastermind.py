@@ -131,4 +131,4 @@ class Feedback:
         self.response = result.value
 
     def __repr__(self):
-        return f'Feedback(code={self.code}, response={self.response})'
+        return f'Feedback(guess={self.code}, result={self.response})'
