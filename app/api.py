@@ -20,16 +20,11 @@ class Mastermind(Resource):
             'token': token
         }, 201
 
-    def patch(self):
+    def patch(self, token=None):
         """ Updates a game and returns feedback
         """
-        token = request.form.get('token')
         if token not in games:
-            return {
-                'message': 'You first have to create a game.',
-                'token': None,
-                'feedback': None
-            }, 403
+            return abort(400)
         game = games.get(token)
         guess = game.codebreaker.guess(request.form.get('code'))
         try:
@@ -59,14 +54,8 @@ class Mastermind(Resource):
     def get(self, token=None):
         """ Returns information about a game
         """
-        if token is None:
-            return abort(400)
         if token not in games:
-            return {
-                'message': 'You first have to create a game.',
-                'token': None,
-                'score': None
-            }, 403
+            return abort(400)
         game = games.get(token)
         return {
             'message': f'This game was created on {game.created}',

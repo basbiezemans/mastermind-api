@@ -32,7 +32,7 @@ Once the API is running, you can run the unit tests in the mastermind-api folder
 $ python -m unittest discover tests
 ```
 
-## Deployment
+## Docker
 
 Build a Docker image with the name `mastermind-api`.
 
@@ -75,7 +75,7 @@ PATCH request. Use the token from the response to communicate with the server.
 * token : hexadecimal string
 
 ```bash
-$ curl -X PATCH -d code=1234 -d token=d9a83... http://127.0.0.1/game/
+$ curl -X PATCH -d code=1234 http://127.0.0.1/game/d9a831082a121dee...
 ```
 
 Example JSON response

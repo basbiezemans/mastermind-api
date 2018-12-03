@@ -12,9 +12,8 @@ class TestAPI(TestCase):
         self.assertEqual(test.status_code, 201)
 
     def test_guess_with_token(self):
-        test = patch(self.game_uri, data={
-            'code': '1234',
-            'token': self.token
+        test = patch(self.game_uri + self.token, data={
+            'code': '1234'
         })
         self.assertEqual(test.json().get('token'), self.token)
 
@@ -22,23 +21,24 @@ class TestAPI(TestCase):
         test = patch(self.game_uri, data={
             'code': '1234'
         })
-        self.assertEqual(test.status_code, 403)
+        self.assertEqual(test.status_code, 400)
 
     def test_guess_without_code(self):
-        test = patch(self.game_uri, data={
-            'token': self.token
-        })
+        test = patch(self.game_uri + self.token, data={})
         self.assertEqual(test.status_code, 400)
 
     def test_guess_with_code_and_token(self):
         code = '1234'
-        test = patch(self.game_uri, data={
-            'code': code,
-            'token': self.token
+        test = patch(self.game_uri + self.token, data={
+            'code': code
         })
         self.assertEqual(test.status_code, 200)
         self.assertEqual(test.json().get('message')[-4:], code)
 
-    def test_retrieve__game_information(self):
+    def test_retrieve_game_information(self):
         test = get(self.game_uri + self.token)
         self.assertEqual(test.status_code, 200)
+
+    def test_retrieve_game_information_without_token(self):
+        test = get(self.game_uri)
+        self.assertEqual(test.status_code, 400)
