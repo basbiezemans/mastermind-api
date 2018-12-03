@@ -69,13 +69,14 @@ Example JSON response
 
 ## Guess the code
 
-PATCH request. Use the token from the response to communicate with the server.
+PATCH request. Update game state with a token and code.
 
-* code : four digit number
-* token : hexadecimal string
+| Data | Type   | Description         | Constraint                   |
+| ---- | ------ | ------------------- | ---------------------------- |
+| code | number | A four digit number | digit ∈ { 1, 2, 3, 4, 5, 6 } |
 
 ```bash
-$ curl -X PATCH -d code=1234 http://127.0.0.1/game/d9a831082a121dee...
+$ curl -X PATCH -d code=1234 http://127.0.0.1/game/<token>
 ```
 
 Example JSON response
@@ -96,7 +97,7 @@ Example JSON response
 GET request. Retrieve game information with a token.
 
 ```bash
-$ curl http://127.0.0.1/game/d9a831082a121dee...
+$ curl http://127.0.0.1/game/<token>
 ```
 
 Example JSON response
@@ -117,6 +118,6 @@ Example JSON response
 DELETE request. Delete a game with a token. The server will not respond to this request.
 
 ```bash
-$ curl -X DELETE http://127.0.0.1/game/d9a831082a121dee...
+$ curl -X DELETE http://127.0.0.1/game/<token>
 ```
 
