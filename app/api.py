@@ -24,7 +24,7 @@ class Mastermind(Resource):
         """ Updates a game and returns feedback
         """
         if token not in games:
-            return abort(400)
+            return abort(404)
         game = games.get(token)
         guess = game.codebreaker.guess(request.form.get('code'))
         try:
@@ -55,7 +55,7 @@ class Mastermind(Resource):
         """ Returns information about a game
         """
         if token not in games:
-            return abort(400)
+            return abort(404)
         game = games.get(token)
         return {
             'message': f'This game was created on {game.created}',
