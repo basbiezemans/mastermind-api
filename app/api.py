@@ -78,4 +78,4 @@ class Mastermind(Resource):
 api.add_resource(Mastermind, '/game/', '/game/<token>')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')
