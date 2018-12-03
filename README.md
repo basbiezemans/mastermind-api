@@ -111,3 +111,12 @@ Example JSON response
     }
 }
 ```
+
+## Delete a game
+
+DELETE request. Delete a game with a token. The server will not respond to this request.
+
+```bash
+$ curl -X DELETE http://127.0.0.1/game/d9a831082a121dee...
+```
+

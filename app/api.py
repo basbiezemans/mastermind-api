@@ -66,6 +66,14 @@ class Mastermind(Resource):
             }
         }
 
+    def delete(self, token=None):
+        """ Deletes a game and doesn't return any content
+        """
+        if token not in games:
+            return abort(404)
+        del games[token]
+        return '', 204
+
 # Endpoint
 api.add_resource(Mastermind, '/game/', '/game/<token>')
 

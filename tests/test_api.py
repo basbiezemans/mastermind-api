@@ -1,15 +1,18 @@
 from unittest import TestCase
-from requests import post, patch, get
+from requests import post, patch, get, delete
 
 class TestAPI(TestCase):
 
     def setUp(self):
         self.game_uri = 'http://localhost:5000/game/'
-        self.token = post(self.game_uri).json().get('token')
+        self.test = post(self.game_uri)
+        self.token = self.test.json().get('token')
+
+    def tearDown(self):
+        delete(self.game_uri + self.token)
 
     def test_create_game(self):
-        test = post(self.game_uri)
-        self.assertEqual(test.status_code, 201)
+        self.assertEqual(self.test.status_code, 201)
 
     def test_guess_with_token(self):
         test = patch(self.game_uri + self.token, data={
@@ -41,4 +44,14 @@ class TestAPI(TestCase):
 
     def test_retrieve_game_information_without_token(self):
         test = get(self.game_uri)
+        self.assertEqual(test.status_code, 400)
+
+    def test_delete_game(self):
+        test = delete(self.game_uri + self.token)
+        self.assertEqual(test.status_code, 204)
+        test = get(self.game_uri + self.token)
+        self.assertEqual(test.status_code, 400)
+
+    def test_delete_game_without_token(self):
+        test = delete(self.game_uri)
         self.assertEqual(test.status_code, 400)
