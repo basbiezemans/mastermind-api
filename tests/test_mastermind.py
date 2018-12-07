@@ -40,7 +40,7 @@ class TestMastermind(TestCase):
         feedback = codemaker.feedback(Guess('1234'))
         # 2, 3 and 4 are correct, 2 also has the correct position
         expected = [1,0,0]
-        self.assertEqual(feedback.response, expected)
+        self.assertEqual(feedback.keybits, expected)
 
     def test_codemaker_provides_correct_feedback_if_there_are_duplicates(self):
         # If there are duplicate digits in the guess, they cannot all be awarded a key bit unless 
@@ -48,11 +48,11 @@ class TestMastermind(TestCase):
         codemaker = CodeMaker(code='6243')
         feedback = codemaker.feedback(Guess('6225'))
         expected = [1,1]
-        self.assertEqual(feedback.response, expected)
+        self.assertEqual(feedback.keybits, expected)
         codemaker = CodeMaker(code='6443')
         feedback = codemaker.feedback(Guess('4124'))
         expected = [0,0]
-        self.assertEqual(feedback.response, expected)
+        self.assertEqual(feedback.keybits, expected)
 
     def test_codemaker_points(self):
         # The codemaker will earn a point if the codebreaker doesn't guess the pattern within one

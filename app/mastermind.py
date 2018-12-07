@@ -55,7 +55,7 @@ class CodeMaker(Player):
         self.pattern = [randint(1,6) for _ in range(4)]
 
     def evaluate(self, guess):
-        """ Evaluates the guess and returns a list of ones and zeros for correct digits
+        """ Evaluates the guess and returns an EvaluationResult object
         """
         digits = [int(c) for c in guess.code]
         result = []
@@ -74,7 +74,7 @@ class CodeMaker(Player):
         def __init__(self, value):
             self.value = value
         def is_correct(self):
-            return sum(self.value) == 4
+            return self.value == [1,1,1,1]
 
     def feedback(self, guess):
         """ Returns a Feedback object or raises a ValueError
@@ -126,9 +126,9 @@ class Guess:
 
 class Feedback:
     def __init__(self, guess, result):
-        self.code = guess.code
+        self.guess = guess
         self.result = result
-        self.response = result.value
+        self.keybits = result.value
 
     def __repr__(self):
         return f'Feedback(guess={self.code}, result={self.response})'

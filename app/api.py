@@ -48,7 +48,7 @@ class Mastermind(Resource):
             return {
                 'message': message,
                 'token': token,
-                'feedback': feedback.response
+                'feedback': feedback.keybits
             }
 
     def get(self, token=None):
