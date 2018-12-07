@@ -6,29 +6,25 @@ class Game:
         self.codemaker = codemaker
         self.codebreaker = codebreaker
         self.created = datetime.utcnow()
-        self.turns = turns
-        self.turn_counter = 0
+        self.counter = LimitCounter(turns)
 
     def reset(self):
-        self.turn_counter = 0
+        self.counter.reset()
         self.codemaker.initialize()
 
     def process(self, feedback):
         """ Determines the result of a game turn
         """
-        self.turn_counter += 1
+        self.counter.increment()
         if feedback.result.is_correct():
             self.codebreaker.add_point()
-        elif self.has_no_turns_left():
+        elif self.counter.reached_limit():
             self.codemaker.add_point()
-
-    def has_no_turns_left(self):
-        return self.turn_counter == self.turns
 
     def __repr__(self):
         return (
             f'Game(codemaker={self.codemaker}'
-            f', codebreaker={self.codebreaker}, turns={self.turns})'
+            f', codebreaker={self.codebreaker}, turns={self.counter.limit})'
         )
 
 class Player:
@@ -68,13 +64,7 @@ class CodeMaker(Player):
             elif digit in pattern:
                 result.append(0)
                 pattern.remove(digit)
-        return self.EvaluationResult(result)
-
-    class EvaluationResult:
-        def __init__(self, value):
-            self.value = value
-        def is_correct(self):
-            return self.value == [1,1,1,1]
+        return EvaluationResult(result)
 
     def feedback(self, guess):
         """ Returns a Feedback object or raises a ValueError
@@ -124,6 +114,16 @@ class Guess:
     def __repr__(self):
         return f'Guess(code={self.code})'
 
+class EvaluationResult:
+    def __init__(self, value):
+        self.value = value
+
+    def is_correct(self):
+        return self.value == [1,1,1,1]
+
+    def __repr__(self):
+        return f'EvaluationResult(value={self.value})'
+
 class Feedback:
     def __init__(self, guess, result):
         self.guess = guess
@@ -131,4 +131,22 @@ class Feedback:
         self.keybits = result.value
 
     def __repr__(self):
-        return f'Feedback(guess={self.code}, result={self.response})'
+        return f'Feedback(guess={self.guess}, result={self.result})'
+
+class LimitCounter:
+    def __init__(self, limit):
+        self.limit = limit
+        self.value = 0
+
+    def reset(self):
+        self.value = 0
+
+    def increment(self):
+        if not self.reached_limit():
+            self.value += 1
+
+    def reached_limit(self):
+        return self.value == self.limit
+
+    def __repr__(self):
+        return f'LimitCounter(limit={self.limit})'

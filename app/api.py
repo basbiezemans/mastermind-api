@@ -13,8 +13,7 @@ class Mastermind(Resource):
         """ Creates a new game and returns a token
         """
         token = token_hex(20)
-        game = Game(CodeMaker(), CodeBreaker())
-        games[token] = game
+        games[token] = Game(CodeMaker(), CodeBreaker())
         return {
             'message': 'A new game has been created. Good luck!',
             'token': token
@@ -33,8 +32,9 @@ class Mastermind(Resource):
             return abort(400)
         else:
             game.process(feedback)
-            if feedback.result.is_correct() or game.has_no_turns_left():
-                result = 'You won!' if feedback.result.is_correct() else 'You lost.'
+            correct_guess = feedback.result.is_correct()
+            if correct_guess or game.counter.reached_limit():
+                result = 'You won!' if correct_guess else 'You lost.'
                 message = (
                     f'{result} The current score is {game.codebreaker.points} '
                     f'(You) vs {game.codemaker.points} (CodeMaker). Try again.'
@@ -42,7 +42,7 @@ class Mastermind(Resource):
                 game.reset()
             else:
                 message = (
-                    f'Guess {game.turn_counter} of {game.turns}. '
+                    f'Guess {game.counter.value} of {game.counter.limit}. '
                     f'You guessed: {guess.code}'
                 )
             return {

@@ -15,6 +15,19 @@ class TestMastermind(TestCase):
         except ValueError:
             self.fail('Unexpected ValueError')
 
+    def test_repr_methods(self):
+        try:
+            repr(Game(CodeMaker(), CodeBreaker()))
+            repr(Player())
+            repr(CodeMaker())
+            repr(CodeBreaker())
+            repr(Guess('1234'))
+            repr(EvaluationResult([]))
+            repr(LimitCounter(10))
+            repr(Feedback(Guess('1234'), EvaluationResult([])))
+        except AttributeError:
+            self.fail('Unexpected AttributeError')
+
     def test_guess_is_valid(self):
         guess = Guess('1234')
         self.assertTrue(guess.is_valid())
@@ -34,6 +47,21 @@ class TestMastermind(TestCase):
     def test_guess_has_incorrect_pattern(self):
         guess = Guess('1238')
         self.assertFalse(guess.is_valid())
+
+    def test_evaluation_result(self):
+        self.assertFalse(EvaluationResult([1,1,0]).is_correct())
+        self.assertTrue(EvaluationResult([1,1,1,1]).is_correct())
+
+    def test_limit_counter(self):
+        counter = LimitCounter(3)
+        counter.increment()
+        self.assertEqual(counter.value, 1)
+        counter.increment()
+        self.assertFalse(counter.reached_limit())
+        counter.increment()
+        self.assertTrue(counter.reached_limit())
+        counter.increment()
+        self.assertEqual(counter.value, 3) # counter shouldn't cross the limit
 
     def test_codemaker_provides_correct_feedback(self):
         codemaker = CodeMaker(code='6243')
@@ -92,8 +120,8 @@ class TestMastermind(TestCase):
         feedback = codemaker.feedback(Guess(code))
         self.assertTrue(feedback.result.is_correct())
         game.process(feedback)
-        self.assertEqual(game.turn_counter, 1)
+        self.assertEqual(game.counter.value, 1)
         game.reset()
-        self.assertEqual(game.turn_counter, 0)
+        self.assertEqual(game.counter.value, 0)
         feedback = codemaker.feedback(Guess(code))
         self.assertFalse(feedback.result.is_correct())
