@@ -25,30 +25,31 @@ class Mastermind(Resource):
         if token not in games:
             return abort(404)
         game = games.get(token)
-        guess = game.codebreaker.guess(request.form.get('code'))
+        guess = request.form.get('code')
         try:
-            feedback = game.codemaker.feedback(guess)
+            result = game.update(guess)
         except ValueError:
             return abort(400)
         else:
-            game.process(feedback)
-            correct_guess = feedback.result.is_correct()
-            if correct_guess or game.counter.reached_limit():
+            correct_guess = result.is_correct()
+            if correct_guess or game.over():
                 result = 'You won!' if correct_guess else 'You lost.'
+                codemaker_score, codebreaker_score = game.score()
                 message = (
-                    f'{result} The current score is {game.codebreaker.points} '
-                    f'(You) vs {game.codemaker.points} (CodeMaker). Try again.'
+                    f'{result} The current score is {codebreaker_score} '
+                    f'(You) vs {codemaker_score} (CodeMaker). Try again.'
                 )
                 game.reset()
             else:
+                current, total = game.turn_count()
                 message = (
-                    f'Guess {game.counter.value} of {game.counter.limit}. '
-                    f'You guessed: {guess.code}'
+                    f'Guess {current} of {total}. '
+                    f'You guessed: {guess}'
                 )
             return {
                 'message': message,
                 'token': token,
-                'feedback': feedback.keybits
+                'feedback': result.value
             }
 
     def get(self, token=None):
@@ -57,12 +58,13 @@ class Mastermind(Resource):
         if token not in games:
             return abort(404)
         game = games.get(token)
+        codemaker_score, codebreaker_score = game.score()
         return {
             'message': f'This game was created on {game.created}',
             'token': token,
             'score': {
-                'codemaker': game.codemaker.points,
-                'codebreaker': game.codebreaker.points
+                'codemaker': codemaker_score,
+                'codebreaker': codebreaker_score
             }
         }
 

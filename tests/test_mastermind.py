@@ -24,7 +24,6 @@ class TestMastermind(TestCase):
             repr(Guess('1234'))
             repr(EvaluationResult([]))
             repr(LimitCounter(10))
-            repr(Feedback(Guess('1234'), EvaluationResult([])))
         except AttributeError:
             self.fail('Unexpected AttributeError')
 
@@ -68,7 +67,7 @@ class TestMastermind(TestCase):
         feedback = codemaker.feedback(Guess('1234'))
         # 2, 3 and 4 are correct, 2 also has the correct position
         expected = [1,0,0]
-        self.assertEqual(feedback.keybits, expected)
+        self.assertEqual(feedback.value, expected)
 
     def test_codemaker_provides_correct_feedback_if_there_are_duplicates(self):
         # If there are duplicate digits in the guess, they cannot all be awarded a key bit unless 
@@ -76,11 +75,11 @@ class TestMastermind(TestCase):
         codemaker = CodeMaker(code='6243')
         feedback = codemaker.feedback(Guess('6225'))
         expected = [1,1]
-        self.assertEqual(feedback.keybits, expected)
+        self.assertEqual(feedback.value, expected)
         codemaker = CodeMaker(code='6443')
         feedback = codemaker.feedback(Guess('4124'))
         expected = [0,0]
-        self.assertEqual(feedback.keybits, expected)
+        self.assertEqual(feedback.value, expected)
 
     def test_codemaker_points(self):
         # The codemaker will earn a point if the codebreaker doesn't guess the pattern within one
@@ -118,10 +117,10 @@ class TestMastermind(TestCase):
         codemaker = CodeMaker(code=code)
         game = Game(codemaker, CodeBreaker(), turns=1)
         feedback = codemaker.feedback(Guess(code))
-        self.assertTrue(feedback.result.is_correct())
+        self.assertTrue(feedback.is_correct())
         game.process(feedback)
         self.assertEqual(game.counter.value, 1)
         game.reset()
         self.assertEqual(game.counter.value, 0)
         feedback = codemaker.feedback(Guess(code))
-        self.assertFalse(feedback.result.is_correct())
+        self.assertFalse(feedback.is_correct())
