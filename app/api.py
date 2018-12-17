@@ -10,7 +10,7 @@ games = {}
 
 class Mastermind(Resource):
     def post(self):
-        """ Creates a new game and returns a token
+        """ Create a new game and return a token.
         """
         token = token_hex(20)
         games[token] = Game(CodeMaker(), CodeBreaker())
@@ -20,7 +20,7 @@ class Mastermind(Resource):
         }, 201
 
     def patch(self, token=None):
-        """ Updates a game and returns feedback
+        """ Update a game and return feedback.
         """
         if token not in games:
             return abort(404)
@@ -53,7 +53,7 @@ class Mastermind(Resource):
             }
 
     def get(self, token=None):
-        """ Returns information about a game
+        """ Return information about a game.
         """
         if token not in games:
             return abort(404)
@@ -69,7 +69,7 @@ class Mastermind(Resource):
         }
 
     def delete(self, token=None):
-        """ Deletes a game and doesn't return any content
+        """ Delete a game but don't return any content.
         """
         if token not in games:
             return abort(404)

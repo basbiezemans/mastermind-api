@@ -28,7 +28,7 @@ class Game:
         self.codemaker.initialize()
 
     def process(self, result):
-        """ Determines the result of a game turn
+        """ Increment the turn count and, if applicable, award a point to the winning player.
         """
         self.counter.increment()
         if result.is_correct():
@@ -61,12 +61,12 @@ class CodeMaker(Player):
             self.pattern = [int(c) for c in code]
 
     def initialize(self):
-        """ Creates a random pattern of four digits between 1 and 6 (inclusive)
+        """ Create a random pattern of four digits between 1 and 6 (inclusive).
         """
         self.pattern = [randint(1,6) for _ in range(4)]
 
     def evaluate(self, guess):
-        """ Evaluates the guess and returns an EvaluationResult object
+        """ Evaluate the guess and return an EvaluationResult object.
         """
         digits = [int(c) for c in guess.code]
         result = []
@@ -82,7 +82,7 @@ class CodeMaker(Player):
         return EvaluationResult(result)
 
     def feedback(self, guess):
-        """ Returns an EvaluationResult object or raises a ValueError
+        """ Return an EvaluationResult object or raise a ValueError.
         """
         if guess.is_valid():
             return self.evaluate(guess)
@@ -97,7 +97,7 @@ class CodeBreaker(Player):
         super().__init__()
 
     def guess(self, code):
-        """ Returns a Guess object
+        """ Return a Guess object.
         """
         return Guess(code)
 
@@ -109,7 +109,7 @@ class Guess:
         self.code = code
 
     def is_valid(self):
-        """ Returns True if this is a valid guess and False otherwise
+        """ Return True if this is a valid guess and False otherwise.
         """
         if self.code is None:
             return False
