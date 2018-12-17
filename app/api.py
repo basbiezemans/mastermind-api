@@ -33,10 +33,10 @@ class Mastermind(Resource):
         else:
             correct_guess = result.is_correct()
             if correct_guess or game.over():
-                result = 'You won!' if correct_guess else 'You lost.'
                 codemaker_score, codebreaker_score = game.score()
+                outcome = 'You won!' if correct_guess else 'You lost.'
                 message = (
-                    f'{result} The current score is {codebreaker_score} '
+                    f'{outcome} The current score is {codebreaker_score} '
                     f'(You) vs {codemaker_score} (CodeMaker). Try again.'
                 )
                 game.reset()
