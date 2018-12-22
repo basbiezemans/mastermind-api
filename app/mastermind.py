@@ -1,4 +1,5 @@
 from random import randint
+from secrets import token_hex
 from datetime import datetime
 
 class Game:
@@ -155,3 +156,29 @@ class LimitCounter:
 
     def __repr__(self):
         return f'LimitCounter(limit={self.limit})'
+
+class GameRepository:
+    def __init__(self):
+        self.games = {}
+
+    def store(self, game):
+        """ Store a Game object and return its token.
+        """
+        token = token_hex(20)
+        self.games[token] = game
+        return token
+
+    def has(self, token):
+        """ Return True if token is in repository and False otherwise. 
+        """
+        return token in self.games
+
+    def retrieve(self, token):
+        """ Return a Game object or raise a KeyError.
+        """
+        return self.games[token]
+
+    def remove(self, token):
+        """ Remove a Game object or raise a KeyError.
+        """
+        del self.games[token]
