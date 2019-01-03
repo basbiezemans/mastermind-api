@@ -17,7 +17,7 @@ class TestMastermind(TestCase):
 
     def test_repr_methods(self):
         try:
-            repr(Game(CodeMaker(), CodeBreaker()))
+            repr(Game.create())
             repr(Player())
             repr(CodeMaker())
             repr(CodeBreaker())
@@ -124,3 +124,15 @@ class TestMastermind(TestCase):
         self.assertEqual(game.counter.value, 0)
         feedback = codemaker.feedback(Guess(code))
         self.assertFalse(feedback.is_correct())
+
+    def test_game_builder(self):
+        game = Game.create()
+        game.token = '92e65c3e-13e7-4847-aeeb-60b3c2e69997'
+        builder = GameBuilder()
+        expected = builder \
+            .set_token(game.token) \
+            .set_timestamp(game.created) \
+            .set_codemaker_score(0) \
+            .set_codebreaker_score(0) \
+            .get_result()
+        self.assertEqual(expected, game)

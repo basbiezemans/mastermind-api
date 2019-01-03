@@ -1,27 +1,31 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, abort
-from mastermind import GameRepository, Game, CodeMaker, CodeBreaker
+from repositories import GameRepository
+from gateways import SQLiteDatabase
+from mastermind import Game, GameBuilder
 
 app = Flask(__name__)
 api = Api(app)
 
-repo = GameRepository()
-
 class Mastermind(Resource):
+
+    repo = GameRepository(GameBuilder(), SQLiteDatabase())
+
     def post(self):
         """ Create a new game and return a token.
         """
-        token = repo.store(Game(CodeMaker(), CodeBreaker()))
+        game = Game.create()
+        self.repo.save(game)
         return {
             'message': 'A new game has been created. Good luck!',
-            'token': token
+            'token': game.token
         }, 201
 
     def patch(self, token=None):
         """ Update a game and return feedback.
         """
         try:
-            game = repo.retrieve(token)
+            game = self.repo.find(token)
         except KeyError:
             return abort(404)
         guess = request.form.get('code')
@@ -54,7 +58,7 @@ class Mastermind(Resource):
         """ Return information about a game.
         """
         try:
-            game = repo.retrieve(token)
+            game = self.repo.find(token)
         except KeyError:
             return abort(404)
         codemaker_score, codebreaker_score = game.score()
@@ -71,7 +75,7 @@ class Mastermind(Resource):
         """ Delete a game but don't return any content.
         """
         try:
-            repo.remove(token)
+            self.repo.delete(token)
         except KeyError:
             return abort(404)
         return '', 204
