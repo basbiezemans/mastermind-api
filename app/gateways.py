@@ -1,6 +1,45 @@
+from abc import ABC, abstractmethod
 import sqlite3
 
-class SQLiteDatabase:
+class Gateway(ABC):
+    @abstractmethod
+    def insert(self, item): pass
+
+    @abstractmethod
+    def update(self, item): pass
+
+    @abstractmethod
+    def delete(self, item): pass
+
+    @abstractmethod
+    def filter_by(self, **kwargs): pass
+
+class GatewayStub(Gateway):
+    def __init__(self):
+        self.game = None
+
+    def insert(self, game):
+        self.game = game
+        return True
+
+    def update(self, game):
+        return self.insert(game)
+
+    def delete(self, game):
+        self.game = None
+        return self.game is None
+
+    def filter_by(self, **kwargs):
+        if self.game is not None:
+            return {
+                'token': self.game.token,
+                'datetime_created': self.game.created,
+                'codemaker_score': self.game.score()[0],
+                'codebreaker_score': self.game.score()[1]
+            }
+        return None
+
+class SQLiteDatabase(Gateway):
     def __init__(self):
         self.con = sqlite3.connect(':memory:', check_same_thread=False)
         def dict_factory(cursor, row):
