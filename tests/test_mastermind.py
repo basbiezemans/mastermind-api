@@ -80,6 +80,10 @@ class TestMastermind(TestCase):
         feedback = codemaker.feedback(Guess('4124'))
         expected = [0,0]
         self.assertEqual(feedback.value, expected)
+        codemaker = CodeMaker(code='5256')
+        feedback = codemaker.feedback(Guess('2244'))
+        expected = [1]
+        self.assertEqual(feedback.value, expected)
 
     def test_codemaker_points(self):
         # The codemaker will earn a point if the codebreaker doesn't guess the pattern within one

@@ -69,18 +69,23 @@ class CodeMaker(Player):
     def evaluate(self, guess):
         """ Evaluate the guess and return an EvaluationResult object.
         """
-        digits = [int(c) for c in guess.code]
-        result = []
-        pattern = self.pattern[:]
+        code1 = [int(c) for c in guess.code]
+        code2 = self.pattern[:]
+        ones = []; zeros = []
+        digits = []; pattern = []
         for i in range(4):
-            digit = digits[i]
-            if digit == self.pattern[i]:
-                result.insert(0, 1)
+            digit1 = code1[i]
+            digit2 = code2[i]
+            if digit1 == digit2:
+                ones.append(1)
+            else:
+                digits.append(digit1)
+                pattern.append(digit2)
+        for digit in digits:
+            if digit in pattern:
+                zeros.append(0)
                 pattern.remove(digit)
-            elif digit in pattern:
-                result.append(0)
-                pattern.remove(digit)
-        return EvaluationResult(result)
+        return EvaluationResult(ones + zeros)
 
     def feedback(self, guess):
         """ Return an EvaluationResult object or raise a ValueError.
