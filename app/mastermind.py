@@ -1,19 +1,22 @@
 from random import randint
-from secrets import token_hex
 from datetime import datetime
 
 class Game:
     def __init__(self, codemaker, codebreaker, turns=10):
         self.codemaker = codemaker
         self.codebreaker = codebreaker
-        self.created = datetime.utcnow()
         self.counter = LimitCounter(turns)
+        self.created = str(datetime.utcnow())
 
     def update(self, code):
         guess = self.codebreaker.guess(code)
         feedback = self.codemaker.feedback(guess)
         self.process(feedback)
         return feedback
+
+    @staticmethod
+    def create():
+        return Game(CodeMaker(), CodeBreaker())
 
     def turn_count(self):
         return (self.counter.value, self.counter.limit)
@@ -36,6 +39,12 @@ class Game:
             self.codebreaker.add_point()
         elif self.counter.reached_limit():
             self.codemaker.add_point()
+
+    def __eq__(self, other):
+        return self.hash() == other.hash()
+
+    def hash(self):
+        return hash((self.token, self.created) + self.score())
 
     def __repr__(self):
         return (
@@ -162,28 +171,25 @@ class LimitCounter:
     def __repr__(self):
         return f'LimitCounter(limit={self.limit})'
 
-class GameRepository:
+class GameBuilder:
     def __init__(self):
-        self.games = {}
+        self.game = Game.create()
 
-    def store(self, game):
-        """ Store a Game object and return its token.
-        """
-        token = token_hex(20)
-        self.games[token] = game
-        return token
+    def set_token(self, token):
+        self.game.token = token
+        return self
 
-    def has(self, token):
-        """ Return True if token is in repository and False otherwise. 
-        """
-        return token in self.games
+    def set_timestamp(self, created):
+        self.game.created = created
+        return self
 
-    def retrieve(self, token):
-        """ Return a Game object or raise a KeyError.
-        """
-        return self.games[token]
+    def set_codemaker_score(self, points):
+        self.game.codemaker.points = points
+        return self
 
-    def remove(self, token):
-        """ Remove a Game object or raise a KeyError.
-        """
-        del self.games[token]
+    def set_codebreaker_score(self, points):
+        self.game.codebreaker.points = points
+        return self
+
+    def get_result(self):
+        return self.game
