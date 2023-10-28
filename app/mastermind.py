@@ -1,5 +1,7 @@
 from random import randint
 from datetime import datetime
+from functools import reduce
+from itertools import repeat
 
 class Game:
     def __init__(self, codemaker, codebreaker, turns=10):
@@ -75,25 +77,28 @@ class CodeMaker(Player):
         """
         self.pattern = [randint(1,6) for _ in range(4)]
 
+    def compare_lists(self, list1, list2):
+        pairs = list(zip(list1, list2))
+        unequal_pairs = [(a, b) for a, b in pairs if a != b]
+        count_correct = len(pairs) - len(unequal_pairs)
+        def count(acc, digit):
+            tally, digits = acc
+            if digit in digits:
+                tally += 1
+                digits.remove(digit)
+            return tally, digits
+        guess, secret = unzip(unequal_pairs)
+        count_present = reduce(count, guess, (0, secret))[0]
+        return count_correct, count_present
+
     def evaluate(self, guess):
         """ Evaluate the guess and return an EvaluationResult object.
         """
-        code1 = [int(c) for c in guess.code]
-        code2 = self.pattern[:]
-        ones = []; zeros = []
-        digits = []; pattern = []
-        for i in range(4):
-            digit1 = code1[i]
-            digit2 = code2[i]
-            if digit1 == digit2:
-                ones.append(1)
-            else:
-                digits.append(digit1)
-                pattern.append(digit2)
-        for digit in digits:
-            if digit in pattern:
-                zeros.append(0)
-                pattern.remove(digit)
+        list1 = [int(c) for c in guess.code]
+        list2 = self.pattern[:]
+        correct, present = self.compare_lists(list1, list2)
+        ones = list(repeat(1, correct))
+        zeros = list(repeat(0, present))
         return EvaluationResult(ones + zeros)
 
     def feedback(self, guess):
@@ -193,3 +198,9 @@ class GameBuilder:
 
     def get_result(self):
         return self.game
+
+def unzip(pairs):
+    if not pairs:
+        return [], []
+    t1, t2 = zip(*pairs)
+    return list(t1), list(t2)
