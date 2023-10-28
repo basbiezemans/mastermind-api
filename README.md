@@ -6,8 +6,8 @@ REST API that simulates the role of Mastermind's codemaker.
 
 ## Requirements
 
-* Python >= 3.6
-* Packages: Flask, Flask-RESTful
+* Python >= 3.9
+* Packages: Flask, Flask-RESTful, Requests
 
 ## Installation
 
@@ -23,6 +23,8 @@ After a successful installation you are ready to run a local version of the appl
 ```bash
 $ python app/api.py
 ```
+
+The server will be running on http://127.0.0.1:5000. Add port 5000 to the cURL requests below.
 
 ## Unit tests
 
