@@ -28,7 +28,7 @@ class Game:
 
     def over(self):
         return self.counter.reached_limit()
-    
+
     def reset(self):
         self.counter.reset()
         self.codemaker.initialize()
@@ -43,9 +43,9 @@ class Game:
             self.codemaker.add_point()
 
     def __eq__(self, other):
-        return self.hash() == other.hash()
+        return self.__hash__() == other.__hash__()
 
-    def hash(self):
+    def __hash__(self):
         return hash((self.token, self.created) + self.score())
 
     def __repr__(self):
