@@ -46,7 +46,8 @@ class Game:
         return self.__hash__() == other.__hash__()
 
     def __hash__(self):
-        return hash((self.token, self.created) + self.score())
+        token = getattr(self, 'token', None)
+        return hash((token, self.created) + self.score())
 
     def __repr__(self):
         return (
