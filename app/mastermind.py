@@ -2,6 +2,7 @@ from random import randint
 from datetime import datetime, timezone
 from functools import reduce
 from itertools import repeat
+from re import fullmatch
 
 class Game:
     def __init__(self, codemaker, codebreaker, turns=10):
@@ -132,19 +133,10 @@ class Guess:
     def is_valid(self):
         """ Return True if this is a valid guess and False otherwise.
         """
-        if self.code is None:
+        if not isinstance(self.code, str):
             return False
-        if len(self.code) != 4:
-            return False
-        try:
-            int(self.code)
-        except ValueError:
-            return False
-        for c in self.code:
-            n = int(c)
-            if n < 1 or n > 6:
-                return False
-        return True
+        pattern = r'[1-6]{4}'
+        return fullmatch(pattern, self.code) is not None
 
     def __repr__(self):
         return f'Guess(code={self.code})'
