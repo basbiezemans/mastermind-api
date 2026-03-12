@@ -1,5 +1,5 @@
 from random import randint
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import reduce
 from itertools import repeat
 
@@ -8,7 +8,7 @@ class Game:
         self.codemaker = codemaker
         self.codebreaker = codebreaker
         self.counter = LimitCounter(turns)
-        self.created = str(datetime.utcnow())
+        self.created = datetime.now(timezone.utc).isoformat()
 
     def update(self, code):
         guess = self.codebreaker.guess(code)
