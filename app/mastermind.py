@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from functools import reduce
 from itertools import repeat
 from re import fullmatch
+from collections import Counter
 
 class Game:
     def __init__(self, codemaker, codebreaker, turns=10):
@@ -83,14 +84,10 @@ class CodeMaker(Player):
         pairs = list(zip(list1, list2))
         unequal_pairs = [(a, b) for a, b in pairs if a != b]
         count_correct = len(pairs) - len(unequal_pairs)
-        def count(acc, digit):
-            tally, digits = acc
-            if digit in digits:
-                tally += 1
-                digits.remove(digit)
-            return tally, digits
         guess, secret = unzip(unequal_pairs)
-        count_present = reduce(count, guess, (0, secret))[0]
+        mset1 = Counter(guess)
+        mset2 = Counter(secret)
+        count_present = sum(min(mset1[e], mset2.get(e, 0)) for e in mset1)
         return count_correct, count_present
 
     def evaluate(self, guess):
