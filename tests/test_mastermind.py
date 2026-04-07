@@ -63,27 +63,22 @@ class TestMastermind(TestCase):
         self.assertEqual(counter.value, 3) # counter shouldn't cross the limit
 
     def test_codemaker_provides_correct_feedback(self):
-        codemaker = CodeMaker(code='6243')
-        feedback = codemaker.feedback(Guess('1234'))
-        # 2, 3 and 4 are correct, 2 also has the correct position
-        expected = [1,0,0]
-        self.assertEqual(feedback.value, expected)
-
-    def test_codemaker_provides_correct_feedback_if_there_are_duplicates(self):
-        # If there are duplicate digits in the guess, they cannot all be awarded a key bit unless 
-        # they correspond to the same number of duplicate digits in the hidden code.
-        codemaker = CodeMaker(code='6243')
-        feedback = codemaker.feedback(Guess('6225'))
-        expected = [1,1]
-        self.assertEqual(feedback.value, expected)
-        codemaker = CodeMaker(code='6443')
-        feedback = codemaker.feedback(Guess('4124'))
-        expected = [0,0]
-        self.assertEqual(feedback.value, expected)
-        codemaker = CodeMaker(code='5256')
-        feedback = codemaker.feedback(Guess('2244'))
-        expected = [1]
-        self.assertEqual(feedback.value, expected)
+        test_cases = [
+            ['1234', '1234', (4,0)],
+            ['6243', '6225', (2,0)],
+            ['5256', '2244', (1,0)],
+            ['1111', '2222', (0,0)],
+            ['6423', '2252', (0,1)],
+            ['6443', '4124', (0,2)],
+            ['6163', '1136', (1,2)],
+            ['1234', '2134', (2,2)],
+        ]
+        for test in test_cases:
+            secret, guess, hint = test
+            codemaker = CodeMaker(code=secret)
+            feedback = codemaker.feedback(Guess(guess))
+            expected = [1] * hint[0] + [0] * hint[1]
+            self.assertEqual(feedback.value, expected)
 
     def test_codemaker_points(self):
         # The codemaker will earn a point if the codebreaker doesn't guess the pattern within one
@@ -100,7 +95,7 @@ class TestMastermind(TestCase):
         self.assertEqual(codemaker_points_after, 1)
         self.assertEqual(codebreaker_points_before, 0)
         self.assertEqual(codebreaker_points_after, 0)
-        
+
     def test_codebreaker_points(self):
         # The code breaker will earn a point if the pattern is guessed before the round is over.
         codemaker = CodeMaker(code='1212')
