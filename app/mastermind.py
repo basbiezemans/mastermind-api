@@ -1,6 +1,5 @@
 from random import randint
 from datetime import datetime, timezone
-from functools import reduce
 from itertools import repeat
 from re import fullmatch
 from collections import Counter
