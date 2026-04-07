@@ -87,7 +87,7 @@ class CodeMaker(Player):
         guess, secret = unzip(unequal_pairs)
         mset1 = Counter(guess)
         mset2 = Counter(secret)
-        count_present = sum(min(mset1[e], mset2.get(e, 0)) for e in mset1)
+        count_present = (mset1 & mset2).total()
         return count_correct, count_present
 
     def evaluate(self, guess):
